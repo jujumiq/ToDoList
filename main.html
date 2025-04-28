@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>ToDo List</h1>
+        <input id="taskInput" type="text" placeholder="Введіть завдання">
+        <button id="addTaskButton">Додати</button>
+        <ul id="taskList"></ul>
+    </div>
+
+<script>
+// Отримуємо елементи
+const taskInput = document.getElementById('taskInput');
+const addTaskButton = document.getElementById('addTaskButton');
+const taskList = document.getElementById('taskList');
+
+// Завантажуємо завдання при старті
+window.addEventListener('DOMContentLoaded', loadTasks);
+
+// Додаємо завдання
+addTaskButton.addEventListener('click', () => {
+    const text = taskInput.value.trim();
+    if (text) {
+        addTask(text);
+        saveTasks();
+        taskInput.value = '';
+    }
+});
+
+// Створення завдання
+function addTask(text, completed = false) {
+    const li = document.createElement('li');
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = completed;
+
+    const span = document.createElement('span');
+    span.textContent = text;
+    if (completed) span.style.textDecoration = 'line-through';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Видалити';
+    deleteBtn.classList.add('deleteBtn');
+
+    checkbox.addEventListener('change', () => {
+        span.style.textDecoration = checkbox.checked ? 'line-through' : '';
+        saveTasks();
+    });
+
+    deleteBtn.addEventListener('click', () => {
+        li.remove();
+        saveTasks();
+    });
+
+    li.appendChild(checkbox);
+    li.appendChild(span);
+    li.appendChild(deleteBtn);
+    taskList.appendChild(li);
+}
+
+// Зберігання завдань у localStorage
+function saveTasks() {
+    const tasks = [];
+    taskList.querySelectorAll('li').forEach(li => {
+        tasks.push({
+            text: li.querySelector('span').textContent,
+            completed: li.querySelector('input[type="checkbox"]').checked
+        });
+    });
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// Завантаження завдань із localStorage
+function loadTasks() {
+    const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    tasks.forEach(task => addTask(task.text, task.completed));
+}
+</script>
+
+</body>
+</html>
